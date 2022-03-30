@@ -3,15 +3,21 @@ package com.example.kotproject
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.media.AudioManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.View
 import android.widget.*
+import com.example.kotproject.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,9 +27,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
         getPermission()
 
-
     }
+    private val sensorManager1 by lazy {
+        getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    }
+    override fun onResume() {
+        super.onResume()
 
+        sensorManager1.registerListener(this,
+            sensorManager1.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+        SensorManager.SENSOR_DELAY_NORMAL)
+    }
     private fun getPermission() {
         val notificationManager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if(Build.VERSION.SDK_INT >= 23){
@@ -46,5 +60,19 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        binding.seekBar.setProgress(binding.seekBar.getProgress()+20, true)
+        val volume = binding.seekBar.progress
+        Log.e("seekbar", "${binding.seekBar.progress}")
+        volChange(volume)
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+    }
+    override fun onPause() {
+        super.onPause()
+        sensorManager1.unregisterListener(this)
     }
 }
