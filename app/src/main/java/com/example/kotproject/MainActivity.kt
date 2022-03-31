@@ -8,6 +8,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.media.AudioManager
+import android.media.MediaPlayer
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -19,6 +20,9 @@ import com.example.kotproject.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var binding: ActivityMainBinding
+    private var tmp: Int = 0
+    private var prev: Int = 0
+    private lateinit var mediaPlayer: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +30,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val view = binding.root
         setContentView(view)
         getPermission()
+        mediaPlayer = MediaPlayer.create(this, R.raw.bgm)
+        mediaPlayer.start()
+        mediaPlayer.isLooping = false
 
     }
     private val sensorManager1 by lazy {
@@ -46,27 +53,28 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
         }
     }
-    private fun volChange(volume: Int){
+    private fun volChange(volume: Int) {
         val audioManager = this.applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-        when(volume){
+        when (volume) {
             -1 -> audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
             else -> {
-                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
                 audioManager.setStreamVolume(
-                        AudioManager.STREAM_RING,
-                        (audioManager.getStreamMaxVolume(AudioManager.STREAM_RING) * volume/100.0).toInt(),
-                        AudioManager.FLAG_PLAY_SOUND
+                    AudioManager.STREAM_MUSIC,
+                    (audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * volume / 100.0).toInt(),
+                    AudioManager.FLAG_PLAY_SOUND
                 )
             }
         }
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        binding.seekBar.setProgress(binding.seekBar.getProgress()+20, true)
-        val volume = binding.seekBar.progress
-        Log.e("seekbar", "${binding.seekBar.progress}")
-        volChange(volume)
+        event?.let {
+            tmp = -event.values[0].toInt()
+            binding.seekBar.setProgress(binding.seekBar.getProgress() + tmp, true)
+            val volume = binding.seekBar.progress
+            Log.e("seekbar", "${binding.seekBar.progress}")
+            volChange(volume)
+        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -75,4 +83,5 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         super.onPause()
         sensorManager1.unregisterListener(this)
     }
+
 }
