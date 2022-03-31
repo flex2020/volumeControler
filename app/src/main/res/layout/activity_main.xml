@@ -17,12 +17,13 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="55dp"
-        android:layout_height="18dp"
+        android:layout_width="236dp"
+        android:layout_height="66dp"
         android:text="휴대폰을 기울이면 볼륨이 바뀝니다."
         app:layout_constraintBottom_toTopOf="@+id/seekBar"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.554"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.683" />
+        app:layout_constraintVertical_bias="0.839" />
 </androidx.constraintlayout.widget.ConstraintLayout>
